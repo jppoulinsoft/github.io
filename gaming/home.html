@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PoulinSoft – Gaming</title>
+<style>
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:#0b1e3a;
+color:white;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+min-height:100vh;
+}
+
+.container{
+max-width:1100px;
+padding:40px;
+text-align:center;
+}
+
+h1{
+font-size:52px;
+margin-bottom:10px;
+animation:fadeDown 1s ease;
+}
+
+.tagline{
+max-width:700px;
+margin:auto;
+font-size:18px;
+opacity:0.9;
+animation:fadeIn 2s ease;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3, 1fr);
+gap:25px;
+margin-top:50px;
+}
+
+.card{
+background:#5f8fd6;
+padding:25px;
+border-radius:16px;
+transition:transform .25s, box-shadow .25s;
+cursor:pointer;
+}
+
+.card:hover{
+transform:translateY(-6px) scale(1.03);
+box-shadow:0 10px 30px rgba(0,0,0,0.35);
+}
+
+.card.empty{
+background:#3a5a8a;
+opacity:0.4;
+cursor:default;
+pointer-events:none;
+}
+
+.card h2{
+margin-top:0;
+}
+
+.back-button{
+position:absolute;
+left:25px;
+top:25px;
+background:#2563eb;
+border:none;
+padding:8px 14px;
+border-radius:10px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+text-decoration:none;
+display:inline-block;
+}
+
+.back-button:hover{
+background:#1e4fd1;
+}
+
+.toggle{
+position:absolute;
+right:25px;
+top:25px;
+background:#2563eb;
+border:none;
+padding:8px 14px;
+border-radius:10px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.toggle:hover{
+background:#1e4fd1;
+}
+
+.footer{
+margin-top:60px;
+opacity:0.7;
+font-size:14px;
+text-align:center;
+}
+
+@keyframes fadeDown{
+from{opacity:0;transform:translateY(-40px)}
+to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<a class="back-button" href="../index.html" id="backBtn">← Retour</a>
+<button class="toggle" onclick="toggleLang()" id="langBtn">FR</button>
+
+<div class="container">
+<h1 id="pageTitle">Gaming</h1>
+<p class="tagline" id="tagline"></p>
+
+<div class="grid">
+  <div class="card" onclick="goTo('tic-tac-toe/index.html')">
+    <h2 id="g1title"></h2>
+    <p id="g1desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g2title"></h2>
+    <p id="g2desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g3title"></h2>
+    <p id="g3desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g4title"></h2>
+    <p id="g4desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g5title"></h2>
+    <p id="g5desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g6title"></h2>
+    <p id="g6desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g7title"></h2>
+    <p id="g7desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g8title"></h2>
+    <p id="g8desc"></p>
+  </div>
+
+  <div class="card empty">
+    <h2 id="g9title"></h2>
+    <p id="g9desc"></p>
+  </div>
+</div>
+
+<div class="footer" id="footer"></div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const urlLang = params.get("lang");
+const browserLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+let lang = urlLang || localStorage.getItem("lang") || (browserLang.startsWith("fr") ? "fr" : "en");
+if(urlLang) localStorage.setItem("lang", urlLang);
+
+const text = {
+  en: {
+    pageTitle: "Gaming",
+    tagline: "Explore our collection of mobile games — fun, addictive, and beautifully designed.",
+    back: "← Back",
+    btn: "FR",
+    footer: "Quebec, Canada",
+    g1title: "Tic-Tac-Toe",
+    g1desc: "The classic game, reimagined for mobile.",
+    g2title: "Coming Soon",
+    g2desc: "",
+    g3title: "Coming Soon",
+    g3desc: "",
+    g4title: "Coming Soon",
+    g4desc: "",
+    g5title: "Coming Soon",
+    g5desc: "",
+    g6title: "Coming Soon",
+    g6desc: "",
+    g7title: "Coming Soon",
+    g7desc: "",
+    g8title: "Coming Soon",
+    g8desc: "",
+    g9title: "Coming Soon",
+    g9desc: ""
+  },
+  fr: {
+    pageTitle: "Jeux",
+    tagline: "Explorez notre collection de jeux mobiles — amusants, addictifs et bien conçus.",
+    back: "← Retour",
+    btn: "EN",
+    footer: "Québec, Canada",
+    g1title: "Tic-Tac-Toe",
+    g1desc: "Le jeu classique, réinventé pour mobile.",
+    g2title: "Bientôt disponible",
+    g2desc: "",
+    g3title: "Bientôt disponible",
+    g3desc: "",
+    g4title: "Bientôt disponible",
+    g4desc: "",
+    g5title: "Bientôt disponible",
+    g5desc: "",
+    g6title: "Bientôt disponible",
+    g6desc: "",
+    g7title: "Bientôt disponible",
+    g7desc: "",
+    g8title: "Bientôt disponible",
+    g8desc: "",
+    g9title: "Bientôt disponible",
+    g9desc: ""
+  }
+};
+
+function apply(){
+  const t = text[lang];
+  document.getElementById("pageTitle").innerText = t.pageTitle;
+  document.getElementById("tagline").innerText = t.tagline;
+  document.getElementById("backBtn").innerText = t.back;
+  document.getElementById("langBtn").innerText = t.btn;
+  document.getElementById("footer").innerText = t.footer;
+  for(let i = 1; i <= 9; i++){
+    document.getElementById("g"+i+"title").innerText = t["g"+i+"title"];
+    document.getElementById("g"+i+"desc").innerText = t["g"+i+"desc"];
+  }
+}
+
+function toggleLang(){
+  lang = lang === "en" ? "fr" : "en";
+  localStorage.setItem("lang", lang);
+  apply();
+}
+
+function goTo(path){
+  window.location.href = path + "?lang=" + lang;
+}
+
+apply();
+</script>
+
+</body>
+</html>

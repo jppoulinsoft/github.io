@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      font-family: 'Segoe UI', sans-serif;
+      color: #eee;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #e94560;
+      letter-spacing: 2px;
+    }
+
+    #mode-toggle {
+      display: flex;
+      margin-bottom: 1.2rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #e94560;
+    }
+
+    #mode-toggle button {
+      padding: 0.5rem 1.2rem;
+      font-size: 0.95rem;
+      background: transparent;
+      color: #eee;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #mode-toggle button.active {
+      background: #e94560;
+      color: white;
+    }
+
+    #status {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      min-height: 1.5rem;
+      color: #a8dadc;
+    }
+
+    /* ── Layout principal ── */
+    #game-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #board-area {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* ── Plateau ── */
+    #board {
+      display: grid;
+      gap: 6px;
+    }
+
+    .cell {
+      background: #16213e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s, transform 0.1s;
+      user-select: none;
+    }
+
+    .cell:hover:not(.taken) {
+      background: #0f3460;
+      transform: scale(1.08);
+    }
+
+    .cell.x { color: #e94560; }
+    .cell.o { color: #a8dadc; }
+
+    .cell.winner {
+      background: #0f3460;
+      animation: pulse 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to   { transform: scale(1.08); }
+    }
+
+    /* ── Explosion des cellules ── */
+    .cell.explode {
+      animation: explode var(--dur, 0.8s) ease-in forwards !important;
+      pointer-events: none;
+    }
+
+    @keyframes explode {
+      0%   { transform: scale(1) translate(0, 0); opacity: 1; }
+      30%  { transform: scale(1.3) translate(var(--tx, 0px), var(--ty, 0px)); opacity: 1; }
+      100% { transform: scale(0.2) translate(var(--tx2, 0px), var(--ty2, 0px)); opacity: 0; }
+    }
+
+    /* ── Canvas confettis ── */
+    #confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ── Slider droit (vertical – lignes) ── */
+    #slider-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #rows-slider {
+      writing-mode: vertical-lr;
+      direction: rtl;
+      cursor: pointer;
+      accent-color: #e94560;
+    }
+
+    /* ── Slider bas (horizontal – colonnes) ── */
+    #slider-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    #cols-slider {
+      cursor: pointer;
+      accent-color: #e94560;
+    }
+
+    .slider-label {
+      font-size: 0.82rem;
+      color: #a8dadc;
+    }
+
+    /* ── Scores ── */
+    #scores {
+      display: flex;
+      gap: 2rem;
+      margin: 1rem 0;
+    }
+
+    .score-box {
+      background: #16213e;
+      border-radius: 10px;
+      padding: 0.6rem 1.4rem;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .score-box span {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: bold;
+    }
+
+    .score-box.x-score    span { color: #e94560; }
+    .score-box.o-score    span { color: #a8dadc; }
+    .score-box.draw-score span { color: #f4a261; }
+
+    #win-len-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      color: #a8dadc;
+    }
+
+    #win-len-wrapper label { white-space: nowrap; }
+
+    #win-len {
+      width: 52px;
+      padding: 0.35rem 0.5rem;
+      font-size: 1rem;
+      text-align: center;
+      background: #16213e;
+      color: #eee;
+      border: 2px solid #e94560;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    #win-len:focus { border-color: #a8dadc; }
+    #win-len.invalid { border-color: #f4a261; color: #f4a261; }
+
+    #restart {
+      padding: 0.7rem 2rem;
+      font-size: 1rem;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #restart:hover { background: #c73652; }
+
+    #back-btn {
+      position: absolute;
+      left: 25px;
+      top: 25px;
+      background: #c0392b;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.9rem;
+    }
+
+    #back-btn:hover { background: #a93226; }
+
+    #lang-btn {
+      position: absolute;
+      right: 25px;
+      top: 25px;
+      background: #c0392b;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.9rem;
+    }
+
+    #lang-btn:hover { background: #a93226; }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+  <button id="back-btn" onclick="goBack()">← Retour</button>
+  <button id="lang-btn" onclick="toggleLang()">EN</button>
+  <h1>Tic Tac Toe</h1>
+
+  <div id="win-len-wrapper">
+    <label for="win-len" id="win-len-label">Tuiles consécutives pour gagner :</label>
+    <input type="number" id="win-len" value="3" min="2" max="8">
+  </div>
+
+  <div id="mode-toggle">
+    <button id="btn-2p" class="active" onclick="setMode('2p')"></button>
+    <button id="btn-ai"              onclick="setMode('ai')"></button>
+  </div>
+
+  <div id="status">Tour du joueur X</div>
+
+  <div id="game-wrapper">
+
+    <div id="board-area">
+      <!-- Plateau généré en JS -->
+      <div id="board"></div>
+
+      <!-- Slider droit : contrôle les LIGNES (axe Y) -->
+      <div id="slider-right">
+        <span class="slider-label" id="rows-val">3</span>
+        <input type="range" id="rows-slider" min="3" max="8" value="3">
+        <span class="slider-label" id="rows-label">lignes</span>
+      </div>
+    </div>
+
+    <!-- Slider bas : contrôle les COLONNES (axe X) -->
+    <div id="slider-bottom">
+      <input type="range" id="cols-slider" min="3" max="8" value="3">
+      <span class="slider-label"><span id="cols-label">colonnes</span>&nbsp;:&nbsp;<span id="cols-val">3</span></span>
+    </div>
+
+  </div>
+
+  <div id="scores">
+    <div class="score-box x-score">X <span id="score-x">0</span></div>
+    <div class="score-box draw-score"><span id="draw-label">Nul</span> <span id="score-draw">0</span></div>
+    <div class="score-box o-score">O <span id="score-o">0</span></div>
+  </div>
+
+  <button id="restart"></button>
+
+  <script>
+    // ── Langue ───────────────────────────────────────────────
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get("lang");
+    const browserLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+    let lang = urlLang || localStorage.getItem("lang") || (browserLang.startsWith("fr") ? "fr" : "en");
+    if (urlLang) localStorage.setItem("lang", urlLang);
+
+    const T = {
+      fr: {
+        back: "← Retour",
+        langBtn: "EN",
+        winLenLabel: "Tuiles consécutives pour gagner :",
+        btn2p: "2 Joueurs",
+        btnAi: "vs Ordinateur",
+        rows: "lignes",
+        cols: "colonnes",
+        drawLabel: "Nul",
+        restart: "Nouvelle partie",
+        turnX: "Tour du joueur X",
+        turnO: "Tour du joueur O",
+        yourTurn: "Votre tour (X)",
+        thinking: "L'ordinateur réfléchit…",
+        youWin: "Vous gagnez !",
+        aiWins: "L'ordinateur gagne !",
+        playerWins: p => `Joueur ${p} gagne !`,
+        draw: "Match nul !"
+      },
+      en: {
+        back: "← Back",
+        langBtn: "FR",
+        winLenLabel: "Consecutive tiles to win:",
+        btn2p: "2 Players",
+        btnAi: "vs Computer",
+        rows: "rows",
+        cols: "columns",
+        drawLabel: "Draw",
+        restart: "New game",
+        turnX: "Player X's turn",
+        turnO: "Player O's turn",
+        yourTurn: "Your turn (X)",
+        thinking: "Computer is thinking…",
+        youWin: "You win!",
+        aiWins: "Computer wins!",
+        playerWins: p => `Player ${p} wins!`,
+        draw: "Draw!"
+      }
+    };
+
+    function applyLang() {
+      const t = T[lang];
+      document.getElementById("back-btn").innerText = t.back;
+      document.getElementById("lang-btn").innerText = t.langBtn;
+      document.getElementById("win-len-label").innerText = t.winLenLabel;
+      document.getElementById("btn-2p").innerText = t.btn2p;
+      document.getElementById("btn-ai").innerText = t.btnAi;
+      document.getElementById("rows-label").innerText = t.rows;
+      document.getElementById("cols-label").innerText = t.cols;
+      document.getElementById("draw-label").innerText = t.drawLabel;
+      document.getElementById("restart").innerText = t.restart;
+      const t2 = T[lang];
+      if (!gameOver) {
+        statusEl.textContent = vsAI ? t2.yourTurn : t2.turnX;
+      }
+    }
+
+    function toggleLang() {
+      lang = lang === "en" ? "fr" : "en";
+      localStorage.setItem("lang", lang);
+      applyLang();
+    }
+
+    function goBack() {
+      window.location.href = "../home.html?lang=" + lang;
+    }
+
+    let WIN_LEN = 3;
+
+    let rows = 3, cols = 3;
+    let board, currentPlayer, gameOver;
+    let vsAI = false;
+    let WINNING_COMBOS = [];
+    const scores = { X: 0, O: 0, draw: 0 };
+
+    // Références DOM
+    const statusEl  = document.getElementById('status');
+    const boardEl   = document.getElementById('board');
+    const scoreX    = document.getElementById('score-x');
+    const scoreO    = document.getElementById('score-o');
+    const scoreDr   = document.getElementById('score-draw');
+    const rowsSlider  = document.getElementById('rows-slider');
+    const colsSlider  = document.getElementById('cols-slider');
+    const rowsValEl   = document.getElementById('rows-val');
+    const colsValEl   = document.getElementById('cols-val');
+    const winLenInput = document.getElementById('win-len');
+
+    // ── Sliders ──────────────────────────────────────────────
+    rowsSlider.addEventListener('input', () => {
+      rows = +rowsSlider.value;
+      rowsValEl.textContent = rows;
+      clampWinLen();
+      buildBoard();
+    });
+
+    colsSlider.addEventListener('input', () => {
+      cols = +colsSlider.value;
+      colsValEl.textContent = cols;
+      clampWinLen();
+      buildBoard();
+    });
+
+    // ── Champ tuiles consécutives ─────────────────────────────
+    winLenInput.addEventListener('input', () => {
+      const val = parseInt(winLenInput.value);
+      const max = Math.min(rows, cols);
+      if (!val || val < 2 || val > max) {
+        winLenInput.classList.add('invalid');
+        return;
+      }
+      winLenInput.classList.remove('invalid');
+      WIN_LEN = val;
+      WINNING_COMBOS = generateCombos(rows, cols, WIN_LEN);
+      resetGame();
+    });
+
+    function clampWinLen() {
+      const max = Math.min(rows, cols);
+      if (WIN_LEN > max) {
+        WIN_LEN = max;
+        winLenInput.value = WIN_LEN;
+        winLenInput.classList.remove('invalid');
+      }
+      winLenInput.max = max;
+    }
+
+    document.getElementById('restart').addEventListener('click', resetGame);
+
+    // ── Mode ─────────────────────────────────────────────────
+    function setMode(mode) {
+      vsAI = mode === 'ai';
+      document.getElementById('btn-2p').classList.toggle('active', !vsAI);
+      document.getElementById('btn-ai').classList.toggle('active',  vsAI);
+      resetGame();
+    }
+
+    // ── Construction du plateau ───────────────────────────────
+    function cellSize() {
+      return Math.min(100, Math.floor(360 / Math.max(rows, cols)));
+    }
+
+    function buildBoard() {
+      WINNING_COMBOS = generateCombos(rows, cols, WIN_LEN);
+
+      const cs  = cellSize();
+      const gap = 6;
+      const bw  = cols * cs + (cols - 1) * gap;
+      const bh  = rows * cs + (rows - 1) * gap;
+
+      // Grille CSS
+      boardEl.style.gridTemplateColumns = `repeat(${cols}, ${cs}px)`;
+      boardEl.style.gridTemplateRows    = `repeat(${rows}, ${cs}px)`;
+      boardEl.style.gap = gap + 'px';
+
+      // Taille des sliders calée sur le plateau
+      rowsSlider.style.height = bh + 'px';
+      colsSlider.style.width  = bw + 'px';
+
+      // Cellules
+      boardEl.innerHTML = '';
+      for (let i = 0; i < rows * cols; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        cell.style.fontSize = Math.max(14, cs * 0.44) + 'px';
+        cell.addEventListener('click', handleClick);
+        boardEl.appendChild(cell);
+      }
+
+      resetGame();
+    }
+
+    // ── Génération dynamique des combinaisons gagnantes ───────
+    function generateCombos(r, c, wl) {
+      const combos = [];
+
+      // Horizontales
+      for (let row = 0; row < r; row++)
+        for (let col = 0; col <= c - wl; col++) {
+          const combo = [];
+          for (let k = 0; k < wl; k++) combo.push(row * c + col + k);
+          combos.push(combo);
+        }
+
+      // Verticales
+      for (let col = 0; col < c; col++)
+        for (let row = 0; row <= r - wl; row++) {
+          const combo = [];
+          for (let k = 0; k < wl; k++) combo.push((row + k) * c + col);
+          combos.push(combo);
+        }
+
+      // Diagonale ↘
+      for (let row = 0; row <= r - wl; row++)
+        for (let col = 0; col <= c - wl; col++) {
+          const combo = [];
+          for (let k = 0; k < wl; k++) combo.push((row + k) * c + col + k);
+          combos.push(combo);
+        }
+
+      // Diagonale ↙
+      for (let row = 0; row <= r - wl; row++)
+        for (let col = wl - 1; col < c; col++) {
+          const combo = [];
+          for (let k = 0; k < wl; k++) combo.push((row + k) * c + col - k);
+          combos.push(combo);
+        }
+
+      return combos;
+    }
+
+    // ── Gestion des coups ─────────────────────────────────────
+    function getCells() { return boardEl.querySelectorAll('.cell'); }
+
+    function handleClick(e) {
+      const idx = +e.target.dataset.index;
+      if (gameOver || board[idx]) return;
+      if (vsAI && currentPlayer === 'O') return;
+
+      playMove(idx);
+
+      if (!gameOver && vsAI && currentPlayer === 'O') {
+        statusEl.textContent = T[lang].thinking;
+        getCells().forEach(c => c.style.pointerEvents = 'none');
+        setTimeout(() => {
+          playMove(bestMove());
+          getCells().forEach(c => c.style.pointerEvents = '');
+        }, 300);
+      }
+    }
+
+    function playMove(idx) {
+      board[idx] = currentPlayer;
+      const cells = getCells();
+      cells[idx].textContent = currentPlayer;
+      cells[idx].classList.add(currentPlayer.toLowerCase(), 'taken');
+
+      const winCombo = checkWinFor(currentPlayer);
+      if (winCombo) {
+        winCombo.forEach(i => cells[i].classList.add('winner'));
+        statusEl.textContent = vsAI
+          ? (currentPlayer === 'X' ? T[lang].youWin : T[lang].aiWins)
+          : T[lang].playerWins(currentPlayer);
+        scores[currentPlayer]++;
+        updateScores();
+        gameOver = true;
+        setTimeout(launchCelebration, 600);
+      } else if (board.every(Boolean)) {
+        statusEl.textContent = T[lang].draw;
+        scores.draw++;
+        updateScores();
+        gameOver = true;
+      } else {
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusEl.textContent = vsAI
+          ? (currentPlayer === 'X' ? T[lang].yourTurn : '')
+          : (currentPlayer === 'X' ? T[lang].turnX : T[lang].turnO);
+      }
+    }
+
+    function checkWinFor(player) {
+      return WINNING_COMBOS.find(combo => combo.every(i => board[i] === player)) || null;
+    }
+
+    // ── Minimax + élagage alpha-bêta ──────────────────────────
+    function depthLimit() {
+      const n = rows * cols;
+      if (n <=  9) return 20;
+      if (n <= 12) return 7;
+      if (n <= 16) return 5;
+      return 4;
+    }
+
+    function bestMove() {
+      const limit = depthLimit();
+      let bestScore = -Infinity, move = -1;
+      for (let i = 0; i < board.length; i++) {
+        if (!board[i]) {
+          board[i] = 'O';
+          const s = minimax(board, 0, false, -Infinity, Infinity, limit);
+          board[i] = null;
+          if (s > bestScore) { bestScore = s; move = i; }
+        }
+      }
+      return move;
+    }
+
+    function getWinner(b) {
+      for (const combo of WINNING_COMBOS) {
+        const v = b[combo[0]];
+        if (v && combo.every(i => b[i] === v)) return v;
+      }
+      return null;
+    }
+
+    function minimax(b, depth, isMax, alpha, beta, limit) {
+      const w = getWinner(b);
+      if (w === 'O') return 10 - depth;
+      if (w === 'X') return depth - 10;
+      if (b.every(Boolean) || depth >= limit) return 0;
+
+      if (isMax) {
+        let best = -Infinity;
+        for (let i = 0; i < b.length; i++) {
+          if (!b[i]) {
+            b[i] = 'O';
+            best = Math.max(best, minimax(b, depth + 1, false, alpha, beta, limit));
+            b[i] = null;
+            alpha = Math.max(alpha, best);
+            if (beta <= alpha) break;
+          }
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (let i = 0; i < b.length; i++) {
+          if (!b[i]) {
+            b[i] = 'X';
+            best = Math.min(best, minimax(b, depth + 1, true, alpha, beta, limit));
+            b[i] = null;
+            beta = Math.min(beta, best);
+            if (beta <= alpha) break;
+          }
+        }
+        return best;
+      }
+    }
+
+    // ── Explosion + Confettis ─────────────────────────────────
+    const confettiCanvas = document.getElementById('confetti-canvas');
+    const ctx = confettiCanvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiRaf = null;
+
+    const CONFETTI_COLORS = [
+      '#e94560','#a8dadc','#f4a261','#ffe066',
+      '#b5ead7','#c9b1ff','#ff9de2','#ffffff'
+    ];
+
+    function launchCelebration() {
+      explodeBoard();
+      setTimeout(startConfetti, 200);
+    }
+
+    function explodeBoard() {
+      getCells().forEach(cell => {
+        const angle = Math.random() * Math.PI * 2;
+        const dist  = 120 + Math.random() * 220;
+        const dist2 = dist * 2.5;
+        cell.style.setProperty('--tx',  Math.cos(angle) * dist  + 'px');
+        cell.style.setProperty('--ty',  Math.sin(angle) * dist  + 'px');
+        cell.style.setProperty('--tx2', Math.cos(angle) * dist2 + 'px');
+        cell.style.setProperty('--ty2', Math.sin(angle) * dist2 + 'px');
+        cell.style.setProperty('--dur', (0.6 + Math.random() * 0.5) + 's');
+        cell.classList.add('explode');
+      });
+    }
+
+    function startConfetti() {
+      confettiCanvas.width  = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+      confettiParticles = [];
+
+      for (let i = 0; i < 180; i++) {
+        confettiParticles.push({
+          x:     Math.random() * confettiCanvas.width,
+          y:     -10 - Math.random() * confettiCanvas.height * 0.5,
+          w:     6  + Math.random() * 10,
+          h:     10 + Math.random() * 16,
+          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          angle: Math.random() * Math.PI * 2,
+          spin:  (Math.random() - 0.5) * 0.25,
+          vx:    (Math.random() - 0.5) * 3,
+          vy:    2.5 + Math.random() * 4,
+          alpha: 1,
+          shape: Math.random() < 0.4 ? 'circle' : 'rect'
+        });
+      }
+
+      if (confettiRaf) cancelAnimationFrame(confettiRaf);
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+      confettiParticles.forEach(p => {
+        p.x     += p.vx;
+        p.y     += p.vy;
+        p.angle += p.spin;
+        p.vy    += 0.07; // gravité
+        if (p.y > confettiCanvas.height * 0.85) p.alpha -= 0.025;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        if (p.shape === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        }
+        ctx.restore();
+      });
+
+      confettiParticles = confettiParticles.filter(p => p.alpha > 0);
+
+      if (confettiParticles.length > 0) {
+        confettiRaf = requestAnimationFrame(animateConfetti);
+      } else {
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      }
+    }
+
+    function stopConfetti() {
+      if (confettiRaf) { cancelAnimationFrame(confettiRaf); confettiRaf = null; }
+      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      confettiParticles = [];
+    }
+
+    // ── Utilitaires ───────────────────────────────────────────
+    function updateScores() {
+      scoreX.textContent  = scores.X;
+      scoreO.textContent  = scores.O;
+      scoreDr.textContent = scores.draw;
+    }
+
+    function resetGame() {
+      stopConfetti();
+      board = Array(rows * cols).fill(null);
+      currentPlayer = 'X';
+      gameOver = false;
+      const cs = cellSize();
+      getCells().forEach(cell => {
+        cell.textContent = '';
+        cell.className = 'cell';
+        cell.style.pointerEvents = '';
+        cell.style.fontSize = Math.max(14, cs * 0.44) + 'px';
+      });
+      statusEl.textContent = vsAI ? T[lang].yourTurn : T[lang].turnX;
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    buildBoard();
+    applyLang();
+  </script>
+
+</body>
+</html>

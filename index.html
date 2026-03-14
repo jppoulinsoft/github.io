@@ -125,8 +125,13 @@ to{opacity:1}
 
 <div class="cards">
 <div class="card">
-<h2 id="gtitle"></h2>
-<p id="gdesc"></p>
+<h2 id="wtitle"></h2>
+<p id="wdesc"></p>
+</div>
+
+<div class="card">
+<h2 id="ititle"></h2>
+<p id="idesc"></p>
 </div>
 
 <div class="card">
@@ -134,9 +139,9 @@ to{opacity:1}
 <p id="udesc"></p>
 </div>
 
-<div class="card">
-<h2 id="ititle"></h2>
-<p id="idesc"></p>
+<div class="card" onclick="location.href='gaming/home.html?lang='+lang" style="cursor:pointer;">
+<h2 id="gtitle"></h2>
+<p id="gdesc"></p>
 </div>
 </div>
 
@@ -151,11 +156,14 @@ to{opacity:1}
 // Personal project disclaimer to reassure employers
 console.log("This website is a personal project, created for learning and portfolio purposes only. Not related to any employer.");
 
-let lang="en";
+const browserLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+let lang = localStorage.getItem("lang") || (browserLang.startsWith("fr") ? "fr" : "en");
 
 const text={
  en:{
  tagline:"Building smart software for the future. Mobile games, powerful utilities, and innovative digital experiences crafted with creativity and intelligence.",
+ wtitle:"Health & Wellness",
+ wdesc:"Digital solutions dedicated to well-being, personal care, and a healthier lifestyle.",
  gtitle:"Mobile Gaming",
  gdesc:"Fun, addictive and beautifully designed mobile games for iOS and Android.",
  utitle:"Utility Software",
@@ -170,6 +178,8 @@ const text={
  },
  fr:{
  tagline:"Créer des logiciels intelligents pour l'avenir. Jeux mobiles, utilitaires puissants et expériences numériques innovantes.",
+ wtitle:"Soin et bien-être",
+ wdesc:"Des solutions numériques dédiées au bien-être, aux soins personnels et à un mode de vie plus sain.",
  gtitle:"Jeux mobiles",
  gdesc:"Jeux amusants, addictifs et bien conçus pour iOS et Android.",
  utitle:"Logiciels utilitaires",
@@ -188,6 +198,8 @@ function apply(){
 const t=text[lang];
 
 document.getElementById("tagline").innerText=t.tagline;
+document.getElementById("wtitle").innerText=t.wtitle;
+document.getElementById("wdesc").innerText=t.wdesc;
 document.getElementById("gtitle").innerText=t.gtitle;
 document.getElementById("gdesc").innerText=t.gdesc;
 document.getElementById("utitle").innerText=t.utitle;
@@ -203,6 +215,7 @@ document.getElementById("contactBtn").innerText=t.contact;
 
 function toggleLang(){
 lang = lang === "en" ? "fr" : "en";
+localStorage.setItem("lang", lang);
 apply();
 }
 
