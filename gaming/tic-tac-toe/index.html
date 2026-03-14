@@ -79,7 +79,7 @@
 
     .cell {
       background: #16213e;
-      border-radius: 50%;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -764,6 +764,18 @@
       });
       statusEl.textContent = vsAI ? T[lang].yourTurn : T[lang].turnX;
     }
+
+    // ── Zoom mobile ──────────────────────────────────────────
+    function fitMobile() {
+      const gameWidth = 480;
+      if (window.innerWidth < gameWidth) {
+        document.body.style.zoom = window.innerWidth / gameWidth;
+      } else {
+        document.body.style.zoom = '';
+      }
+    }
+    window.addEventListener('resize', fitMobile);
+    fitMobile();
 
     // ── Init ──────────────────────────────────────────────────
     buildBoard();
