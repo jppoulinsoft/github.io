@@ -65,16 +65,18 @@
     }
 
     #board-area {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-template-rows: auto auto;
+      gap: 8px 14px;
     }
 
     /* ── Plateau ── */
     #board {
       display: grid;
       gap: 6px;
+      grid-column: 1;
+      grid-row: 1;
     }
 
     .cell {
@@ -107,6 +109,9 @@
       to   { transform: scale(1.08); }
     }
 
+    /* ── Empêche le décalage horizontal lors de l'explosion ── */
+    body { overflow-x: hidden; }
+
     /* ── Explosion des cellules ── */
     .cell.explode {
       animation: explode var(--dur, 0.8s) ease-in forwards !important;
@@ -128,7 +133,7 @@
       z-index: 999;
     }
 
-    /* ── Slider droit (vertical – lignes) ── */
+    /* ── Contrôles lignes/colonnes ── */
     #slider-right {
       display: flex;
       flex-direction: column;
@@ -136,30 +141,52 @@
       gap: 6px;
     }
 
-    #rows-slider {
-      writing-mode: vertical-lr;
-      direction: rtl;
-      cursor: pointer;
-      accent-color: #e94560;
+    #board-col { display: contents; }
+
+    #slider-right {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: end;
     }
 
-    /* ── Slider bas (horizontal – colonnes) ── */
     #slider-bottom {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: 4px;
+      gap: 10px;
+      grid-column: 1;
+      grid-row: 2;
+      justify-self: end;
     }
 
-    #cols-slider {
-      cursor: pointer;
-      accent-color: #e94560;
-    }
-
-    .slider-label {
+    .dim-label {
       font-size: 0.82rem;
       color: #a8dadc;
     }
+
+    .dim-val {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #eee;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .dim-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: none;
+      background: #e94560;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .dim-btn:hover { background: #c73652; }
+    .dim-btn:disabled { background: #555; cursor: default; }
 
     /* ── Scores ── */
     #scores {
@@ -188,29 +215,40 @@
 
     #win-len-wrapper {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 1rem;
       font-size: 0.95rem;
       color: #a8dadc;
     }
 
-    #win-len-wrapper label { white-space: nowrap; }
-
-    #win-len {
-      width: 52px;
-      padding: 0.35rem 0.5rem;
-      font-size: 1rem;
-      text-align: center;
-      background: #16213e;
-      color: #eee;
+    #win-toggle {
+      display: flex;
+      border-radius: 8px;
+      overflow: hidden;
       border: 2px solid #e94560;
-      border-radius: 6px;
-      outline: none;
     }
 
-    #win-len:focus { border-color: #a8dadc; }
-    #win-len.invalid { border-color: #f4a261; color: #f4a261; }
+    #win-toggle button {
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      background: transparent;
+      color: #eee;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #win-toggle button.active {
+      background: #e94560;
+      color: white;
+    }
+
+    #win-toggle button:disabled {
+      opacity: 0.25;
+      cursor: default;
+    }
 
     #restart {
       padding: 0.7rem 2rem;
@@ -224,6 +262,20 @@
     }
 
     #restart:hover { background: #c73652; }
+
+    #ai-first-btn {
+      padding: 0.7rem 2rem;
+      font-size: 1rem;
+      background: #0f3460;
+      color: #a8dadc;
+      border: 2px solid #a8dadc;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    #ai-first-btn:hover { background: #1a4a7a; }
 
     #back-btn {
       position: absolute;
@@ -270,8 +322,14 @@
   <h1>Tic Tac Toe</h1>
 
   <div id="win-len-wrapper">
-    <label for="win-len" id="win-len-label">Tuiles consécutives pour gagner :</label>
-    <input type="number" id="win-len" value="3" min="2" max="8">
+    <span id="win-len-label">Tuiles consécutives pour gagner :</span>
+    <div id="win-toggle">
+      <button id="wl-3" class="active" onclick="setWinLen(3)">3</button>
+      <button id="wl-4"               onclick="setWinLen(4)">4</button>
+      <button id="wl-5"               onclick="setWinLen(5)">5</button>
+      <button id="wl-6"               onclick="setWinLen(6)">6</button>
+      <button id="wl-7"               onclick="setWinLen(7)">7</button>
+    </div>
   </div>
 
   <div id="mode-toggle">
@@ -284,21 +342,23 @@
   <div id="game-wrapper">
 
     <div id="board-area">
-      <!-- Plateau généré en JS -->
-      <div id="board"></div>
-
-      <!-- Slider droit : contrôle les LIGNES (axe Y) -->
-      <div id="slider-right">
-        <span class="slider-label" id="rows-val">3</span>
-        <input type="range" id="rows-slider" min="3" max="8" value="3">
-        <span class="slider-label" id="rows-label">lignes</span>
+      <!-- Plateau + contrôle colonnes -->
+      <div id="board-col">
+        <div id="board"></div>
+        <div id="slider-bottom">
+          <span class="dim-label" id="cols-label">colonnes</span>
+          <button class="dim-btn" id="cols-minus" onclick="changeCols(-1)">−</button>
+          <span class="dim-val"   id="cols-val">3</span>
+          <button class="dim-btn" id="cols-plus"  onclick="changeCols(1)">+</button>
+        </div>
       </div>
-    </div>
-
-    <!-- Slider bas : contrôle les COLONNES (axe X) -->
-    <div id="slider-bottom">
-      <input type="range" id="cols-slider" min="3" max="8" value="3">
-      <span class="slider-label"><span id="cols-label">colonnes</span>&nbsp;:&nbsp;<span id="cols-val">3</span></span>
+      <!-- Contrôle lignes -->
+      <div id="slider-right">
+        <button class="dim-btn" id="rows-minus" onclick="changeRows(-1)">−</button>
+        <span class="dim-val"   id="rows-val">3</span>
+        <button class="dim-btn" id="rows-plus"  onclick="changeRows(1)">+</button>
+        <span class="dim-label" id="rows-label">lignes</span>
+      </div>
     </div>
 
   </div>
@@ -310,6 +370,7 @@
   </div>
 
   <button id="restart"></button>
+  <button id="ai-first-btn" onclick="letAIStart()" style="display:none"></button>
 
   <script>
     // ── Langue ───────────────────────────────────────────────
@@ -330,6 +391,7 @@
         cols: "colonnes",
         drawLabel: "Nul",
         restart: "Nouvelle partie",
+        aiFirst: "Laisser l'ordi commencer",
         turnX: "Tour du joueur X",
         turnO: "Tour du joueur O",
         yourTurn: "Votre tour (X)",
@@ -349,6 +411,7 @@
         cols: "columns",
         drawLabel: "Draw",
         restart: "New game",
+        aiFirst: "Let computer go first",
         turnX: "Player X's turn",
         turnO: "Player O's turn",
         yourTurn: "Your turn (X)",
@@ -371,6 +434,7 @@
       document.getElementById("cols-label").innerText = t.cols;
       document.getElementById("draw-label").innerText = t.drawLabel;
       document.getElementById("restart").innerText = t.restart;
+      document.getElementById("ai-first-btn").innerText = t.aiFirst;
       const t2 = T[lang];
       if (!gameOver) {
         statusEl.textContent = vsAI ? t2.yourTurn : t2.turnX;
@@ -392,6 +456,7 @@
     let rows = 3, cols = 3;
     let board, currentPlayer, gameOver;
     let vsAI = false;
+    let aiStarts = false; // alterne à chaque partie en mode vs ordi
     let WINNING_COMBOS = [];
     const scores = { X: 0, O: 0, draw: 0 };
 
@@ -401,49 +466,45 @@
     const scoreX    = document.getElementById('score-x');
     const scoreO    = document.getElementById('score-o');
     const scoreDr   = document.getElementById('score-draw');
-    const rowsSlider  = document.getElementById('rows-slider');
-    const colsSlider  = document.getElementById('cols-slider');
     const rowsValEl   = document.getElementById('rows-val');
     const colsValEl   = document.getElementById('cols-val');
-    const winLenInput = document.getElementById('win-len');
+    const WIN_BTNS    = [3,4,5,6,7].map(n => document.getElementById('wl-'+n));
+    const MIN_DIM = 3, MAX_DIM = 8;
 
-    // ── Sliders ──────────────────────────────────────────────
-    rowsSlider.addEventListener('input', () => {
-      rows = +rowsSlider.value;
+    // ── Boutons +/- lignes/colonnes ──────────────────────────
+    function changeRows(delta) {
+      rows = Math.min(MAX_DIM, Math.max(MIN_DIM, rows + delta));
       rowsValEl.textContent = rows;
+      document.getElementById('rows-plus').disabled  = rows >= MAX_DIM;
+      document.getElementById('rows-minus').disabled = rows <= MIN_DIM;
       clampWinLen();
       buildBoard();
-    });
+    }
 
-    colsSlider.addEventListener('input', () => {
-      cols = +colsSlider.value;
+    function changeCols(delta) {
+      cols = Math.min(MAX_DIM, Math.max(MIN_DIM, cols + delta));
       colsValEl.textContent = cols;
+      document.getElementById('cols-plus').disabled  = cols >= MAX_DIM;
+      document.getElementById('cols-minus').disabled = cols <= MIN_DIM;
       clampWinLen();
       buildBoard();
-    });
+    }
 
-    // ── Champ tuiles consécutives ─────────────────────────────
-    winLenInput.addEventListener('input', () => {
-      const val = parseInt(winLenInput.value);
-      const max = Math.min(rows, cols);
-      if (!val || val < 2 || val > max) {
-        winLenInput.classList.add('invalid');
-        return;
-      }
-      winLenInput.classList.remove('invalid');
-      WIN_LEN = val;
+    // ── Sélecteur tuiles consécutives ────────────────────────
+    function setWinLen(n) {
+      WIN_LEN = n;
+      WIN_BTNS.forEach(btn => btn.classList.toggle('active', +btn.textContent === n));
       WINNING_COMBOS = generateCombos(rows, cols, WIN_LEN);
       resetGame();
-    });
+    }
 
     function clampWinLen() {
       const max = Math.min(rows, cols);
+      WIN_BTNS.forEach(btn => { btn.disabled = +btn.textContent > max; });
       if (WIN_LEN > max) {
         WIN_LEN = max;
-        winLenInput.value = WIN_LEN;
-        winLenInput.classList.remove('invalid');
+        WIN_BTNS.forEach(btn => btn.classList.toggle('active', +btn.textContent === WIN_LEN));
       }
-      winLenInput.max = max;
     }
 
     document.getElementById('restart').addEventListener('click', resetGame);
@@ -451,6 +512,7 @@
     // ── Mode ─────────────────────────────────────────────────
     function setMode(mode) {
       vsAI = mode === 'ai';
+      aiStarts = false;
       document.getElementById('btn-2p').classList.toggle('active', !vsAI);
       document.getElementById('btn-ai').classList.toggle('active',  vsAI);
       resetGame();
@@ -475,8 +537,6 @@
       boardEl.style.gap = gap + 'px';
 
       // Taille des sliders calée sur le plateau
-      rowsSlider.style.height = bh + 'px';
-      colsSlider.style.width  = bw + 'px';
 
       // Cellules
       boardEl.innerHTML = '';
@@ -552,6 +612,7 @@
     }
 
     function playMove(idx) {
+      document.getElementById('ai-first-btn').style.display = 'none';
       board[idx] = currentPlayer;
       const cells = getCells();
       cells[idx].textContent = currentPlayer;
@@ -750,8 +811,27 @@
       scoreDr.textContent = scores.draw;
     }
 
+    function updateAIFirstBtn() {
+      const btn = document.getElementById('ai-first-btn');
+      const showBtn = vsAI && !aiStarts && board && board.every(v => !v) && !gameOver;
+      btn.style.display = showBtn ? 'inline-block' : 'none';
+    }
+
+    function letAIStart() {
+      if (gameOver || !board.every(v => !v)) return;
+      document.getElementById('ai-first-btn').style.display = 'none';
+      currentPlayer = 'O';
+      statusEl.textContent = T[lang].thinking;
+      getCells().forEach(c => c.style.pointerEvents = 'none');
+      setTimeout(() => {
+        playMove(bestMove());
+        getCells().forEach(c => c.style.pointerEvents = '');
+      }, 300);
+    }
+
     function resetGame() {
       stopConfetti();
+      if (vsAI) aiStarts = !aiStarts;
       board = Array(rows * cols).fill(null);
       currentPlayer = 'X';
       gameOver = false;
@@ -762,7 +842,19 @@
         cell.style.pointerEvents = '';
         cell.style.fontSize = Math.max(14, cs * 0.44) + 'px';
       });
-      statusEl.textContent = vsAI ? T[lang].yourTurn : T[lang].turnX;
+      if (vsAI && aiStarts) {
+        currentPlayer = 'O';
+        statusEl.textContent = T[lang].thinking;
+        getCells().forEach(c => c.style.pointerEvents = 'none');
+        setTimeout(() => {
+          playMove(bestMove());
+          getCells().forEach(c => c.style.pointerEvents = '');
+          updateAIFirstBtn();
+        }, 300);
+      } else {
+        statusEl.textContent = vsAI ? T[lang].yourTurn : T[lang].turnX;
+        updateAIFirstBtn();
+      }
     }
 
     // ── Zoom mobile ──────────────────────────────────────────
@@ -778,6 +870,8 @@
     fitMobile();
 
     // ── Init ──────────────────────────────────────────────────
+    document.getElementById('rows-minus').disabled = true;  // rows commence à 3 (min)
+    document.getElementById('cols-minus').disabled = true;  // cols commence à 3 (min)
     buildBoard();
     applyLang();
   </script>
