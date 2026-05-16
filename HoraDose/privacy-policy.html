@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HoraDose — Politique de confidentialité / Privacy Policy</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      line-height: 1.7;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1d1d1f;
+    }
+    .lang-toggle {
+      display: flex;
+      border: 1.5px solid #4f7cff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .lang-toggle button {
+      padding: 6px 16px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #4f7cff;
+      transition: background 0.15s, color 0.15s;
+    }
+    .lang-toggle button.active {
+      background: #4f7cff;
+      color: #fff;
+    }
+    .container {
+      max-width: 780px;
+      margin: 48px auto;
+      padding: 0 24px 80px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #6e6e73;
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 36px;
+      margin-bottom: 10px;
+      color: #1d1d1f;
+    }
+    p, li {
+      font-size: 15px;
+      color: #3a3a3c;
+    }
+    ul {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+    li { margin-bottom: 4px; }
+    a { color: #4f7cff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .lang-section { display: none; }
+    .lang-section.visible { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">HoraDose</span>
+  <div class="lang-toggle">
+    <button id="btn-fr" class="active" onclick="setLang('fr')">FR</button>
+    <button id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+
+    <!-- FRANÇAIS -->
+    <div id="lang-fr" class="lang-section visible">
+      <h1>Politique de confidentialité</h1>
+      <p class="subtitle">Dernière mise à jour : mai 2025</p>
+
+      <h2>1. Introduction</h2>
+      <p>HoraDose (« l'application ») est exploitée par Poulinsoft Inc. (« nous »). Cette politique explique comment nous collectons, utilisons et protégeons vos informations personnelles lorsque vous utilisez HoraDose.</p>
+
+      <h2>2. Informations collectées</h2>
+      <p>Nous collectons uniquement les informations nécessaires au fonctionnement de l'application :</p>
+      <ul>
+        <li>Adresse e-mail et identifiants de connexion</li>
+        <li>Données de santé saisies par l'utilisateur : médicaments, horaires de prises, humeur, symptômes, journal</li>
+        <li>Informations techniques : version de l'app, système d'exploitation, identifiant d'appareil anonymisé</li>
+      </ul>
+
+      <h2>3. Utilisation des informations</h2>
+      <p>Vos données sont utilisées exclusivement pour :</p>
+      <ul>
+        <li>Fournir les fonctionnalités de l'application (rappels, suivi, journal)</li>
+        <li>Synchroniser vos données entre vos appareils</li>
+        <li>Améliorer l'application via des rapports d'erreurs anonymisés</li>
+      </ul>
+      <p>Nous ne vendons pas vos données et ne les partageons pas avec des tiers à des fins publicitaires.</p>
+
+      <h2>4. Stockage et sécurité</h2>
+      <p>Vos données sont stockées de manière sécurisée via <strong>Supabase</strong>, hébergé sur des serveurs conformes aux normes SOC 2. Les données locales sur votre appareil sont chiffrées. Nous appliquons des mesures de sécurité conformes aux meilleures pratiques de l'industrie.</p>
+
+      <h2>5. Connexion via des tiers</h2>
+      <p>Si vous vous connectez via Apple, Google ou Facebook, nous recevons uniquement votre adresse e-mail et un identifiant unique. Nous n'accédons à aucune autre information de votre compte tiers.</p>
+
+      <h2>6. Vos droits</h2>
+      <p>Conformément à la Loi 25 (Québec) et au RGPD (Union européenne), vous avez le droit de :</p>
+      <ul>
+        <li>Accéder à vos données personnelles</li>
+        <li>Corriger des informations inexactes</li>
+        <li>Demander la suppression de votre compte et de vos données</li>
+        <li>Exporter vos données</li>
+      </ul>
+      <p>Pour exercer ces droits, contactez-nous à <a href="mailto:jp@poulinsoft.com">jp@poulinsoft.com</a>.</p>
+
+      <h2>7. Suppression des données</h2>
+      <p>Pour supprimer votre compte et toutes vos données associées, envoyez un e-mail à <a href="mailto:jp@poulinsoft.com">jp@poulinsoft.com</a> en indiquant l'adresse e-mail de votre compte. Votre demande sera traitée dans un délai de 30 jours.</p>
+
+      <h2>8. Mineurs</h2>
+      <p>HoraDose n'est pas destiné aux enfants de moins de 13 ans. Nous ne collectons pas sciemment des données personnelles de mineurs.</p>
+
+      <h2>9. Modifications</h2>
+      <p>Nous pouvons mettre à jour cette politique. En cas de changement important, nous vous en informerons via l'application ou par e-mail.</p>
+
+      <h2>10. Contact</h2>
+      <p>Poulinsoft Inc.<br>
+      <a href="mailto:jp@poulinsoft.com">jp@poulinsoft.com</a></p>
+    </div>
+
+    <!-- ENGLISH -->
+    <div id="lang-en" class="lang-section">
+      <h1>Privacy Policy</h1>
+      <p class="subtitle">Last updated: May 2025</p>
+
+      <h2>1. Introduction</h2>
+      <p>HoraDose ("the app") is operated by Poulinsoft Inc. ("we", "us"). This policy explains how we collect, use, and protect your personal information when you use HoraDose.</p>
+
+      <h2>2. Information We Collect</h2>
+      <p>We collect only the information necessary for the app to function:</p>
+      <ul>
+        <li>Email address and login credentials</li>
+        <li>Health data entered by the user: medications, schedules, mood, symptoms, journal entries</li>
+        <li>Technical information: app version, operating system, anonymized device identifier</li>
+      </ul>
+
+      <h2>3. How We Use Your Information</h2>
+      <p>Your data is used exclusively to:</p>
+      <ul>
+        <li>Provide app features (reminders, tracking, journal)</li>
+        <li>Sync your data across your devices</li>
+        <li>Improve the app through anonymized error reports</li>
+      </ul>
+      <p>We do not sell your data or share it with third parties for advertising purposes.</p>
+
+      <h2>4. Storage and Security</h2>
+      <p>Your data is securely stored via <strong>Supabase</strong>, hosted on SOC 2-compliant servers. Local data on your device is encrypted. We apply security measures consistent with industry best practices.</p>
+
+      <h2>5. Third-Party Sign-In</h2>
+      <p>If you sign in via Apple, Google, or Facebook, we receive only your email address and a unique identifier. We do not access any other information from your third-party account.</p>
+
+      <h2>6. Your Rights</h2>
+      <p>Under Quebec Law 25 and the GDPR (European Union), you have the right to:</p>
+      <ul>
+        <li>Access your personal data</li>
+        <li>Correct inaccurate information</li>
+        <li>Request deletion of your account and data</li>
+        <li>Export your data</li>
+      </ul>
+      <p>To exercise these rights, contact us at <a href="mailto:jp@poulinsoft.com">jp@poulinsoft.com</a>.</p>
+
+      <h2>7. Data Deletion</h2>
+      <p>To delete your account and all associated data, send an email to <a href="mailto:jp@poulinsoft.com">jp@poulinsoft.com</a> with your account email address. Your request will be processed within 30 days.</p>
+
+      <h2>8. Minors</h2>
+      <p>HoraDose is not intended for children under the age of 13. We do not knowingly collect personal data from minors.</p>
+
+      <h2>9. Changes</h2>
+      <p>We may update this policy. For significant changes, we will notify you through the app or by email.</p>
+
+      <h2>10. Contact</h2>
+      <p>Poulinsoft Inc.<br>
+      <a href="mailto:jp@poulinsoft.com">jp@poulinsoft.com</a></p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function setLang(lang) {
+    document.getElementById('lang-fr').classList.toggle('visible', lang === 'fr');
+    document.getElementById('lang-en').classList.toggle('visible', lang === 'en');
+    document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.documentElement.lang = lang;
+  }
+</script>
+
+</body>
+</html>
